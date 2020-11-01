@@ -14,16 +14,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cgcdoss.pontointeligente.api.dtos.CadastroPJDto;
 import com.cgcdoss.pontointeligente.api.entities.Empresa;
 import com.cgcdoss.pontointeligente.api.entities.Funcionario;
 import com.cgcdoss.pontointeligente.api.enums.PerfilEnum;
+import com.cgcdoss.pontointeligente.api.repositories.EmpresaRepository;
+import com.cgcdoss.pontointeligente.api.repositories.FuncionarioRepository;
 import com.cgcdoss.pontointeligente.api.response.Response;
-import com.cgcdoss.pontointeligente.api.services.EmpresaService;
-import com.cgcdoss.pontointeligente.api.services.FuncionarioService;
 import com.cgcdoss.pontointeligente.api.utils.PasswordUtils;
 
 @RestController
@@ -34,10 +33,10 @@ public class CadastroPJController {
 	private static final Logger log = LoggerFactory.getLogger(CadastroPJController.class);
 
 	@Autowired
-	private FuncionarioService funcionarioService;
+	private FuncionarioRepository funcionarioRepository;
 
 	@Autowired
-	private EmpresaService empresaService;
+	private EmpresaRepository empresaRepository;
 
 	public CadastroPJController() {
 	}
@@ -67,9 +66,9 @@ public class CadastroPJController {
 			return ResponseEntity.badRequest().body(response);
 		}
 
-		this.empresaService.persistir(empresa);
+		this.empresaRepository.save(empresa);
 		funcionario.setEmpresa(empresa);
-		this.funcionarioService.persistir(funcionario);
+		this.funcionarioRepository.save(funcionario);
 
 		response.setData(this.converterCadastroPJDto(funcionario));
 		return ResponseEntity.ok(response);
@@ -82,14 +81,14 @@ public class CadastroPJController {
 	 * @param result
 	 */
 	private void validarDadosExistentes(CadastroPJDto cadastroPJDto, BindingResult result) {
-		this.empresaService.buscarPorCnpj(cadastroPJDto.getCnpj())
-				.ifPresent(emp -> result.addError(new ObjectError("empresa", "Empresa já existente.")));
+		if (this.empresaRepository.findByCnpj(cadastroPJDto.getCnpj()) != null)
+			result.addError(new ObjectError("empresa", "Empresa já existente."));
 
-		this.funcionarioService.buscarPorCpf(cadastroPJDto.getCpf())
-				.ifPresent(func -> result.addError(new ObjectError("funcionario", "CPF já existente.")));
+		if (this.funcionarioRepository.findByCpf(cadastroPJDto.getCpf()) != null)
+			result.addError(new ObjectError("funcionario", "CPF já existente."));
 
-		this.funcionarioService.buscarPorEmail(cadastroPJDto.getEmail())
-				.ifPresent(func -> result.addError(new ObjectError("funcionario", "Email já existente.")));
+		if (this.funcionarioRepository.findByEmail(cadastroPJDto.getEmail()) != null)
+			result.addError(new ObjectError("funcionario", "Email já existente."));
 	}
 
 	/**
