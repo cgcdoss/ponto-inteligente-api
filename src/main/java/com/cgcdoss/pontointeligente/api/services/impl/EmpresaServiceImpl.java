@@ -31,4 +31,10 @@ public class EmpresaServiceImpl implements EmpresaService {
 		return this.empresaRepository.save(empresa);
 	}
 
+	@Override
+	public Optional<Empresa> buscarPorId(Long id) {
+		log.info("Buscando uma empresa para o id {}", id);
+		return this.empresaRepository.findById(id);
+	}
+
 }

@@ -13,6 +13,8 @@ public interface EmpresaService {
 	 * @return Optional<Empresa>
 	 */
 	Optional<Empresa> buscarPorCnpj(String cnpj);
+	
+	Optional<Empresa> buscarPorId(Long id);
 
 	/**
 	 * Cadastra uma nova empresa na base de dados.

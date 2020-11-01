@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cgcdoss.pontointeligente.api.dtos.EmpresaDto;
@@ -49,6 +50,27 @@ public class EmpresaController {
 		}
 
 		response.setData(this.converterEmpresaDto(empresa.get()));
+		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * Retorna uma empresa dado um Id
+	 * 
+	 * @param id
+	 * @return ResponseEntity<Response<EmpresaDto>>
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/id/{id}")
+	public ResponseEntity<Response<EmpresaDto>> buscarPorId(@PathVariable("id") Long id) {
+		Response<EmpresaDto> response = new Response<EmpresaDto>();
+		Optional<Empresa> empresa = empresaService.buscarPorId(id);
+
+		if (!empresa.isPresent()) {
+			log.info("Empresa não encontrada para o ID: {}", id);
+			response.getErrors().add("Empresa não encontrada para o ID " + id);
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		response.setData(converterEmpresaDto(empresa.get()));
 		return ResponseEntity.ok(response);
 	}
 
