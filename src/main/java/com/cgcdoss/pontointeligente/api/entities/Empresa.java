@@ -15,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "empresa")
@@ -43,6 +44,7 @@ public class Empresa implements Serializable {
 		this.id = id;
 	}
 
+	@NotEmpty(message = "Razão social não pode ser vazio.")
 	@Column(name = "razao_social", nullable = false)
 	public String getRazaoSocial() {
 		return razaoSocial;
@@ -52,6 +54,7 @@ public class Empresa implements Serializable {
 		this.razaoSocial = razaoSocial;
 	}
 
+	@NotEmpty(message = "CNPJ não pode ser vazio.")
 	@Column(name = "cnpj", nullable = false)
 	public String getCnpj() {
 		return cnpj;

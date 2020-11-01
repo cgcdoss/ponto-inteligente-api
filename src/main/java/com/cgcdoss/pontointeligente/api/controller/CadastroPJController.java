@@ -51,14 +51,13 @@ public class CadastroPJController {
 	 */
 	@PostMapping
 //	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<Response<CadastroPJDto>> cadastrar(@Valid @RequestBody CadastroPJDto cadastroPJDto,
+	public ResponseEntity<Response<Empresa>> cadastrar(@Valid @RequestBody Empresa empresa,
 			BindingResult result) throws NoSuchAlgorithmException {
-		log.info("Cadastrando PJ: {}", cadastroPJDto.toString());
-		Response<CadastroPJDto> response = new Response<CadastroPJDto>();
-
-		validarDadosExistentes(cadastroPJDto, result);
-		Empresa empresa = this.converterDtoParaEmpresa(cadastroPJDto);
-		Funcionario funcionario = this.converterDtoParaFuncionario(cadastroPJDto, result);
+		log.info("Cadastrando PJ: {}", empresa.toString());
+		Response<Empresa> response = new Response<Empresa>();
+		
+		if (this.empresaRepository.findByCnpj(empresa.getCnpj()) != null)
+			result.addError(new ObjectError("empresa", "Empresa já existente."));
 
 		if (result.hasErrors()) {
 			log.error("Erro validando dados de cadastro PJ: {}", result.getAllErrors());
@@ -67,10 +66,8 @@ public class CadastroPJController {
 		}
 
 		this.empresaRepository.save(empresa);
-		funcionario.setEmpresa(empresa);
-		this.funcionarioRepository.save(funcionario);
 
-		response.setData(this.converterCadastroPJDto(funcionario));
+		response.setData(empresa);
 		return ResponseEntity.ok(response);
 	}
 
